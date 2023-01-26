@@ -1,0 +1,229 @@
+// This is an empty scss file for your custom styles - Please add your super duper awesome mega design styles here
+
+/* Idiomas */
+*[class^="show-lang-"],
+.show-lang-es,
+.show-lang-en,
+.show-lang-fr,
+.show-lang-it,
+.show-lang-pt-pt { 
+  display: none !important;
+}
+body.es .show-lang-es,
+body.en .show-lang-en,
+body.fr .show-lang-fr,
+body.it .show-lang-it,
+body.pt-pt .show-lang-pt-pt { 
+  display: inherit !important;
+}
+/***/
+
+/* Layout */
+#page {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+}
+.navbar-brand {
+	&.tagline {
+		font-size: $font-size-sm;
+		text-transform: uppercase;
+		font-weight: $font-weight-bold;
+	}
+	img {
+		max-width: 106px;
+	}
+}
+.breadcrumb {
+	margin-top: $spacer / 2;
+	font-size: $font-size-sm;
+}
+#searchform {
+	margin-bottom: $spacer*2;
+}
+.ebd_results br {
+    display: none;
+}
+
+.ebd_link.download-link {
+    display: block;
+    background-color: #f1f1f1;
+    padding: 1rem;
+    border: 1px solid #000;
+    margin-bottom: -1px;
+
+    > div {
+	    height: auto !important;
+	}
+	&:first-child {
+	    border-top-left-radius: 6px;
+	    border-top-right-radius: 6px;
+	}
+	&:last-child {
+	    border-bottom-left-radius: 6px;
+	    border-bottom-right-radius: 6px;
+	}
+}
+.wp-block-latest-posts.wp-block-latest-posts__list {
+    padding-left: 0;
+}
+/***/
+
+/* Tipografía */
+.font-weight-bold > .dropdown-item {
+	font-weight: $font-weight-bold;
+}
+#main a {
+	&:not(.btn):not(.wp-block-button__link) {
+		text-decoration: underline;
+	}
+}
+.list-group {
+	margin-bottom: $spacer * 2;
+}
+#main .list-group-item a {
+	color: $primary;
+	text-decoration: none;
+
+	&:hover {
+		text-decoration: underline;
+	}
+}
+.list-group-item {
+	padding: 0;
+
+	a {
+		display: block;
+		text-decoration: none !important;
+		// padding: $list-group-item-padding-y $list-group-item-padding-x;
+		padding: .25rem;
+		transition: $btn-transition;
+		background-color: transparentize($light, .85);
+
+		&:hover {
+			background-color: $light;
+			text-decoration: none !important;
+		}
+
+	}
+
+	a.download-link,
+	.manual a {
+		padding-right: 50px;
+		background-image: url('../img/iconos/download.svg');
+		background-repeat: no-repeat;
+		background-position: right 10px center;
+		background-size: 30px auto;
+	}
+	.manual a {
+		font-weight: $font-weight-bold;
+		padding-top: 1rem;
+		padding-bottom: 1rem;
+		padding-left: 1rem;
+	}
+
+}
+.download-link {
+	
+	.title {
+		font-weight: $font-weight-bold;
+	}
+	.terms {
+		font-size: $font-size-sm;
+		color: $secondary;
+		margin: 0 .5rem;
+	}
+}
+.wpmem_msg {
+	width: 100% !important;
+	margin-bottom: $spacer;
+}
+/***/
+
+/* Header */
+.menu-item-pro {
+
+}
+.menu-item > .login_button {
+	@extend .nav-link;
+}
+/***/
+
+/* Formularios */
+.referer-page {
+	display: none !important;
+}
+label.ebd_input {
+	font-size: 1.2rem;
+
+	input[type="checkbox"] {
+		margin-right: .5rem;
+	}
+}
+/***/
+
+/* Facet WP */@at-root
+.facetwp-type-search .facetwp-input-wrap {
+	width: 100%;
+}
+.facetwp-facet input.facetwp-search,
+.facetwp-type-fselect .fs-label-wrap .fs-label {
+	@extend .form-control;
+}
+.facetwp-load-more {
+	@extend .btn;
+	@extend .btn-primary;
+}
+.facetwp-facet input.facetwp-search, 
+.facetwp-facet input.facetwp-location {
+	padding-right: 40px;
+}
+.facetwp-facet.facetwp-type-search .facetwp-icon {
+	right: 10px;
+}
+
+.facetwp-type-search i.clear {
+    position: absolute;
+    right: 40px;
+	top: 0;
+    height: 100%;
+    line-height: 1;
+    cursor: pointer;
+    display: inline-block;
+    opacity: 0.3;
+    width: 24px;
+    height: 100%;
+    background: transparent url('../../../plugins/facetwp/assets/images/icon-close.png') 6px 50% no-repeat;
+    background-size: 14px 14px;
+}
+
+.facetwp-type-search i.clear:hover {
+    opacity: 0.8;
+}
+
+/* no clear icon  while the Search facet is loading */
+/* and when an auto-refresh is running */
+.facetwp-type-search .f-loading + input + i.clear,
+.facetwp-type-search .loading + i.clear {
+    display: none !important;
+}
+
+.facetwp-facet input.facetwp-search {
+    padding-right: 54px;
+}
+
+.facetwp-overflow {
+    opacity: 1;
+    max-height: 150px; /* this height needs to be more than the facetwp-overflow div's actual height. The closer it is to the actual height, the smoother the transition. */
+    transition: all .2s ease-out;
+}
+
+.facetwp-overflow.facetwp-hidden {
+    overflow: hidden;
+    opacity: 0;
+    max-height: 0;
+    display: block;
+    transition: all .2s ease-out;
+}
+/***/

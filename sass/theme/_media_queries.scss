@@ -1,0 +1,40 @@
+@include media-breakpoint-up(xs) {
+
+}
+
+@include media-breakpoint-up(sm) {
+}
+
+@include media-breakpoint-up(md) {
+
+
+}
+
+@include media-breakpoint-up(lg) {
+	.navbar-brand img {
+		max-width: 212px;
+	}
+}
+
+@include media-breakpoint-up(xl) {
+
+}
+
+@include media-breakpoint-down(xl) {
+
+}
+
+@include media-breakpoint-down(lg) {
+
+}
+
+@include media-breakpoint-down(md) {
+
+}
+
+@include media-breakpoint-down(sm) {
+	#wrapper-footer-full, #wrapper-footer {
+		text-align: center;
+	}
+}
+

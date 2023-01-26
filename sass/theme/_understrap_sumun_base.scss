@@ -1,0 +1,231 @@
+html {
+	scroll-behavior: smooth;
+	overflow-x: hidden;
+}
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+.admin-bar {
+
+	.fixed-top {
+		top: 46px;
+	}
+}
+a {
+	img, svg {
+		transition: opacity .3s ease;
+	}
+	&:hover {
+		img, svg {
+			opacity: .7;
+		}
+	}
+}
+
+.text-white a {
+	color: $white;
+}
+button.navbar-toggler:focus {
+	outline: 0;
+}
+.alignfull {
+	margin: 32px calc(50% - 50vw);
+	max-width: 100vw;
+	width: 100vw;
+	margin-top: 64px;
+	margin-bottom: 64px;
+}
+
+.redes-sociales {
+	display: flex;
+	width: 100%;
+	align-items: center;
+	justify-content: center;
+
+	a {
+		opacity: .4;
+
+		&:hover {
+			opacity: 1;
+		}
+	}
+	.red-social {
+		font-size: 2rem;
+		margin-right: 1rem;
+	}
+
+}
+
+.bg-cover { 
+	-webkit-background-size: cover;
+	-moz-background-size: cover;
+	-o-background-size: cover;
+	background-size: cover;
+	background-position: center center;
+}
+.full-screen {
+	min-height: 100vh;
+}
+.has-background:not(.wp-block-separator):not(.wp-block-button__link) {
+	padding: 1rem;
+}
+hr {
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+}
+
+.wp-block-image figcaption {
+	font-size: $font-size-sm;
+}
+.object-fit-cover {
+	object-fit: cover;
+}
+.wp-block-table {
+	th, td {
+		padding: .8rem;
+	}
+}
+.pagination {
+	margin-top: 2rem;
+}
+.comments-area {
+	margin-top: 3rem;
+}
+.wp-columns-block-no-gutters {
+
+	.wp-block-column:not(:first-child) {
+		margin-left: 0;
+	}
+}
+.back-to-top {
+	position: fixed;
+	right: 0px;
+	bottom: 0px;
+	width: 60px;
+	height: 60px;
+	background-color: $secondary;
+	border: 1px solid transparent;
+	color: $white;
+	opacity: 0;
+	transition: all .3s ease;
+	z-index: 10000;
+	transform: rotate(270deg);
+	background-image: url('../img/flecha-derecha.svg');
+	background-size: 30px auto;
+	background-position: center;
+	background-repeat: no-repeat;
+
+	&:hover {
+		background-color: $light;
+		border: 1px solid $secondary;
+	}
+}
+.scrolled .back-to-top {
+	opacity: .9;
+}
+table {
+	tr {
+		border: 1px solid transparentize($body-color, .8);
+	}
+	th {
+		background-color: $light;
+	}
+}
+/* Slider */
+.slide-wrapper {
+	height: 350px;
+	display: flex;
+	align-items: center;
+}
+/***/
+
+/* Tipografía */
+.has-large-font-size, .has-large-font-size, .has-huge-font-size {
+	line-height: 1.2;
+}
+
+/***/
+/* Formularios */
+.wpcf7 {
+	max-width: 100% !important;
+}
+label {
+	font-size: $font-size-sm;
+}
+.wpcf7-response-output {
+    height: auto !important;
+}
+.form-control-sm {
+	height: auto;
+}
+/***/
+
+/* Blog */
+.post-navigation {
+	margin-top: $spacer * 2;
+	.nav-links {
+		font-weight: $font-weight-bold;
+	}
+}
+
+/***/
+
+/* Widgets */
+.widget-area {
+
+	.widget {
+		margin-bottom: 2rem;
+	}
+}
+/***/
+
+/* Header */
+#wrapper-navbar {
+	transition: background-color .3s ease;
+}
+.scrolled {
+	#wrapper-navbar {
+		background-color: $white;
+		// border-bottom: 1px solid $light;
+	}
+}
+
+/***/
+
+/* Footer */
+.footer-widget {
+	margin-bottom: 1rem;
+}
+/***/
+@each $color, $value in $theme-colors {
+  .has-#{$color}-color {
+  	color: $value !important;
+  }
+  .wp-block-cover.has-#{$color}-background-color,
+  .has-#{$color}-background-color {
+  	background-color: $value;
+  }
+  .btn-outline-#{$color}:hover {
+  	background-color: transparent;
+  	color: $value;
+  }
+}
+@each $color, $value in $colors {
+  .has-#{$color}-color {
+  	color: $value !important;
+  }
+  .wp-block-cover.has-#{$color}-background-color,
+  .has-#{$color}-background-color {
+  	background-color: $value;
+  }
+}
+
+@include media-breakpoint-up(md) {
+	.admin-bar {
+
+		.fixed-top {
+			top: 32px;
+		}
+	}
+}

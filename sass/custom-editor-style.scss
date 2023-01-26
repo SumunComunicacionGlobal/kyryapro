@@ -1,0 +1,32 @@
+//Add your own editor styles here or comment out the next line if you want to pull in the whole Bootstrap stuff
+// @import "theme";
+// @import url("https://fonts.googleapis.com/css?family=Open+Sans:300,400,400i,600,700&display=swap");
+
+// body, .editor-post-title__block .editor-post-title__input {
+	// font-family: 'Open Sans', sans-serif;
+// }
+
+.wp-block {
+	max-width: 1140px;
+}
+.wp-block[data-align="wide"] {
+    max-width: 1280px;
+}
+.wp-block[data-align="full"] {
+    max-width: none;
+}
+
+.block-editor-plain-text {
+	font-family: 'Courier New';
+	color: black;
+	font-size: 12px;
+	max-height: 300px;
+}
+
+.d-none, .d-xs-none, .d-sm-none, .d-md-none, .d-lg-none, .d-xl-none {
+	display: block !important;
+	opacity: .3;
+}
+.components-button {
+	overflow: hidden;
+}
