@@ -95,8 +95,9 @@ function kyrya_cif_es_cliente( $cif ) {
 add_filter( 'wpmem_fields', 'kyrya_remove_profile_field', 10, 2 );
 function kyrya_remove_profile_field( $fields, $tag ) {
  
-    if ( 'profile' == $tag || 'profile_dashboard' == $tag ) {
-        unset( $fields['cif'] );
+    //if ( 'profile' == $tag || 'profile_dashboard' == $tag ) {
+	if ( 'profile' == $tag ) {
+			unset( $fields['cif'] );
     }
      
     return $fields;

@@ -804,7 +804,6 @@ function kyrya_user_is_cliente() {
     return false;
 }
 
-
 function get_user_orders( $cif = false, $agent_id = false ) {
 
     $r = '';
@@ -812,6 +811,31 @@ function get_user_orders( $cif = false, $agent_id = false ) {
     $user = wp_get_current_user();
 
     if ( !$user ) return __( 'Inicie sesión para ver sus pedidos', 'kyrya' );
+
+    $string_map = array(
+        'FiscalName'            => __( 'Razón social', 'kyrya'),
+        'razonSocial'            => __( 'Razón social', 'kyrya'),
+        'CompanyName'           => __( 'Empresa', 'kyrya'),
+        'empresa'           => __( 'Empresa', 'kyrya'),
+        'Customerreference'     => __( 'Referencia', 'kyrya'),
+        'CustomerReference'     => __( 'Referencia', 'kyrya'),
+        'referencia'            => __( 'Referencia', 'kyrya'),
+        'ShipmentID'            => __( 'Referencia', 'kyrya'),
+        'OrderID'               => __( 'Nº de pedido', 'kyrya'),
+        'numPedido'             => __( 'Nº de pedido', 'kyrya'),
+        'State'                 => __( 'Estado', 'kyrya'),
+        'estado'                => __( 'Estado', 'kyrya'),
+        'ShipmentDate'          => __( 'Fecha de envío', 'kyrya'),
+        'fechaConfirmacion'     => __( 'Fecha confirmación', 'kyrya'),
+        'fechaExpedicion'       => __( 'Fecha expedición', 'kyrya'),
+        'nuevaFecha'            => __( 'Nueva fecha', 'kyrya'),
+        'Comments'              => __( 'Comentarios', 'kyrya'),
+        'observacionesCliente'  => __( 'Observaciones cliente', 'kyrya'),
+        'motivo'                => __( 'Motivo', 'kyrya'),
+        'Tracking'              => __( 'Seguimiento', 'kyrya'),
+    );
+
+
 
     if ( in_array( 'agente', (array) $user->roles ) ) {
         
@@ -821,20 +845,36 @@ function get_user_orders( $cif = false, $agent_id = false ) {
             return __( 'No se han encontrado pedidos. Compruebe su número de agente', 'kyrya' );
         }
 
-        $curlopt_url = 'https://xvlflc76dj.execute-api.us-east-1.amazonaws.com/queryOrderAgent';
+        $curlopt_urls = array(
+            array (
+                'title'         => sprintf( __( 'Pedidos enviados para el agente %s', 'kyrya' ), $agente_id ),
+                'url'          => 'https://xvlflc76dj.execute-api.us-east-1.amazonaws.com/queryOrderAgent',
+            ),
+            array (
+                'title'         => sprintf( __( 'Pedidos en proceso para el agente %s', 'kyrya' ), $agente_id ),
+                'url'          => 'https://ngw3tehd0f.execute-api.us-east-1.amazonaws.com/getOrderStatusAgent',
+            ),
+        );
         $curlopt_postfields = '{"IDUnicAgent": "'.$agente_id.'"}';
-
-        $r .= wpautop( sprintf( __( 'Pedidos para el agente %s', 'kyrya' ), $agente_id ) );
 
     } elseif( in_array( 'cliente', (array) $user->roles ) ) {
 
         $cif = get_user_meta( $user->ID, 'cif', true );
         if ( !$cif ) return __( 'Su CIF/VAT Number no está definido. Por favor revise su perfil o contacte con Kyrya', 'kyrya' );
 
-        $curlopt_url = 'https://wei0zvbew4.execute-api.us-east-1.amazonaws.com/getOrders';
-        $curlopt_postfields = '{"CIF": "'.$cif.'"}';
+        $curlopt_urls = array(
+            array (
+                'title'         => sprintf( __( 'Pedidos enviados para el cliente con CIF %s', 'kyrya' ), $cif ),
+                'url'          => 'https://wei0zvbew4.execute-api.us-east-1.amazonaws.com/getOrders',
+            ),
+            array (
+                'title'         => sprintf( __( 'Pedidos en proceso para el cliente con CIF %s', 'kyrya' ), $cif ),
+                'url'          => 'https://z820kdos02.execute-api.us-east-1.amazonaws.com/getOrderStatus',
+            ),
+            
+        );
 
-        $r .= wpautop( sprintf( __( 'Pedidos para el cliente con CIF %s', 'kyrya' ), $cif ) );
+        $curlopt_postfields = '{"CIF": "'.$cif.'"}';
 
     } else {
         
@@ -842,138 +882,130 @@ function get_user_orders( $cif = false, $agent_id = false ) {
 
     }
 
+    foreach ( $curlopt_urls as $curlopt_url ) {
 
+        $curl = curl_init();
 
-      $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $curlopt_url['url'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_POSTFIELDS => $curlopt_postfields,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: text/plain'
+            ),
+        ));
+        
+        $response_json = curl_exec($curl);
+        $response = json_decode( $response_json );
+        
+        curl_close($curl);
 
-      curl_setopt_array($curl, array(
-        CURLOPT_URL => $curlopt_url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        CURLOPT_POSTFIELDS => $curlopt_postfields,
-        CURLOPT_HTTPHEADER => array(
-          'Content-Type: text/plain'
-        ),
-      ));
-      
-      $response_json = curl_exec($curl);
-      $response = json_decode( $response_json );
-      
-      curl_close($curl);
-      
-    //  if ( current_user_can( 'manage_options' ) ) :
-        // echo '<pre>';
-        //     print_r ( $response );
-        // echo '</pre>';
-    //  endif;
+        if ( isset($response->errorType) ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' ) . ' - ' . $response['errorType'];
 
-    if ( isset($response->errorType) ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' ) . ' - ' . $response['errorType'];
+        if ( !isset($response->ok) || !$response->ok ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' );
 
-    if ( !isset($response->ok) || !$response->ok ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' );
-
-    if ( is_array( $response ) || is_object( $response ) ) {
-
-            $string_map = array(
-                'FiscalName'         => __( 'Razón social', 'kyrya'),
-                'CompanyName'        => __( 'Empresa', 'kyrya'),
-                'Customerreference'  => __( 'Referencia', 'kyrya'),
-                'CustomerReference'  => __( 'Referencia', 'kyrya'),
-                'ShipmentID'         => __( 'Referencia', 'kyrya'),
-                'OrderID'            => __( 'Nº de pedido', 'kyrya'),
-                'State'              => __( 'Estado', 'kyrya'),
-                'ShipmentDate'       => __( 'Fecha de envío', 'kyrya'),
-                'Comments'           => __( 'Comentarios', 'kyrya'),
-                'Tracking'           => __( 'Seguimiento', 'kyrya'),
-            );
+        if ( is_array( $response ) || is_object( $response ) ) {
 
             $pedidos = $response->data->result;
 
             if ( 204 == $response->code ) return __( 'Su CIF/VAT Number no se encuentra en nuestra base de datos. Por favor revise su perfil o contacte con Kyrya', 'kyrya' );
-            if ( empty($pedidos) ) return __( 'No tiene pedidos asignados', 'kyrya' );
 
-            $r .= '<div class="table-responsive">';
+            $r .= '<div class="wrapper">';
+                
+                $r .= '<h3>'. $curlopt_url['title'].'</h3>';
 
-                $r .= '<table class="table table-striped">';
+                if ( empty($pedidos) ) $r .= __( 'No tiene pedidos asignados', 'kyrya' );
 
-                $r .= '<thead>';
+                $r .= '<div class="table-responsive">';
 
-                    $r .= '<tr>';
+                    $r .= '<table class="table table-striped table-hover table-pedidos">';
 
-                        $obj_vars = get_object_vars( $pedidos[0] );
-                        $props = array_keys( $obj_vars );
-        
-                        foreach ( $props as $prop_name ) {
+                        $r .= '<thead>';
 
-                            $title = $prop_name;
-                            if ( isset( $string_map[$prop_name] ) ) $title = $string_map[$prop_name];
+                            $r .= '<tr>';
 
-                            $r .= '<th class="'. sanitize_title( $prop_name ) .'">'. $title.'</th>';
+                                $obj_vars = get_object_vars( $pedidos[0] );
+                                $props = array_keys( $obj_vars );
+                
+                                foreach ( $props as $prop_name ) {
 
-                        }
+                                    $title = $prop_name;
+                                    if ( isset( $string_map[$prop_name] ) ) $title = $string_map[$prop_name];
 
-                    $r .= '</tr>';
+                                    $r .= '<th class="'. sanitize_title( $prop_name ) .'">'. $title.'</th>';
 
-                $r .= '</thead>';
-
-                $r .= '<tbody>';
-
-                    foreach ( $pedidos as $key => $obj ) {
-
-                        $r .= '<tr>';
-
-                            foreach ( $props as $prop_name ) {
-
-                                $value = $obj->$prop_name;
-
-                                switch ($prop_name) {
-                                    case 'Tracking':
-                                        
-                                        if( filter_var($value, FILTER_VALIDATE_URL) ) {
-                                            $value = '<a class="btn btn-sm btn-outline-primary" href="'.$value.'" target="__blank">'. __( 'Ver seguimiento', 'kyrya' ) .'</a>';
-                                        }
-                                        
-                                        break;
-
-                                    case 'ShipmentDate':
-                                    
-                                        if( $value ) {
-                                            $value = date('Y-m-d', strtotime( $value) );
-                                        }
-
-                                        break;
-                                    
-                                    case 'ShipmentID':
-                                
-                                        if( 'undefined' == $value ) {
-                                            $value = '';
-                                        }
-
-                                        break;
-                                        
-
-                                    default:
-                                        $value = $obj->$prop_name;
-                                        break;
                                 }
 
-                                $r .= '<td class="'. sanitize_title( $prop_name ) .'">'. $value .'</td>';
+                            $r .= '</tr>';
+
+                        $r .= '</thead>';
+
+                        $r .= '<tbody>';
+
+                            foreach ( $pedidos as $key => $obj ) {
+
+                                $r .= '<tr>';
+
+                                    foreach ( $props as $prop_name ) {
+
+                                        $value = $obj->$prop_name;
+
+                                        switch ($prop_name) {
+                                            case 'Tracking':
+                                                
+                                                if( filter_var($value, FILTER_VALIDATE_URL) ) {
+                                                    $value = '<a class="btn btn-sm btn-info" href="'.$value.'" target="__blank">'. __( 'Seguimiento', 'kyrya' ) .'</a>';
+                                                }
+                                                
+                                                break;
+
+                                            case 'ShipmentDate':
+                                            
+                                                if( $value ) {
+                                                    $value = date('Y-m-d', strtotime( $value) );
+                                                }
+
+                                                break;
+                                            
+                                            case 'ShipmentID':
+                                        
+                                                if( 'undefined' == $value ) {
+                                                    $value = '';
+                                                }
+
+                                                break;
+                                                
+
+                                            default:
+                                                $value = $obj->$prop_name;
+                                                break;
+                                        }
+
+                                        $r .= '<td class="'. sanitize_title( $string_map[$prop_name] ) .'">'. $value .'</td>';
+
+                                    }
+
+                                $r .= '</tr>';
 
                             }
 
-                        $r .= '</tr>';
+                        $r .= '</tbody>';
 
-                    }
+                    $r .= '</table>';
 
-                $r .= '</table>';
+                $r .= '</div>'; // table-responsive
 
-            $r .= '</div>';
+            $r .= '</div>'; // wrapper
 
         }
+
+    } // foreach $curl
 
     return $r;
 

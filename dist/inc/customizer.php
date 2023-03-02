@@ -85,6 +85,41 @@ function sumun_new_customizer_settings($wp_customize) {
         'section'   => 'sumun_ajustes',
     ) );
 
+    $wp_customize->add_setting('placeholder_id');
+    $wp_customize->add_control( 'placeholder_id',   array(
+        'type'      => 'number',
+        'label'     => 'ID de la imagen por defecto',
+        'section'   => 'sumun_ajustes',
+    ) );
+
+    $wp_customize->add_setting('download_form_id');
+    $wp_customize->add_control( 'download_form_id',   array(
+        'type'      => 'number',
+        'label'     => 'ID del formulario de descarga',
+        'section'   => 'sumun_ajustes',
+    ) );
+
+    $wp_customize->add_setting('fichas_page_id');
+    $wp_customize->add_control( 'fichas_page_id',   array(
+        'type'      => 'number',
+        'label'     => 'ID de la página de fichas de producto',
+        'section'   => 'sumun_ajustes',
+    ) );
+
+    $wp_customize->add_setting('orders_page_id');
+    $wp_customize->add_control( 'orders_page_id',   array(
+        'type'      => 'number',
+        'label'     => 'ID de la página de pedidos',
+        'section'   => 'sumun_ajustes',
+    ) );
+
+    $wp_customize->add_setting('categoria_catalogos_id');
+    $wp_customize->add_control( 'categoria_catalogos_id',   array(
+        'type'      => 'number',
+        'label'     => 'ID de la categoría de los catálogos',
+        'section'   => 'sumun_ajustes',
+    ) );
+
 }
 add_action('customize_register', 'sumun_new_customizer_settings');
 /***/

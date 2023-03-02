@@ -7,6 +7,14 @@ if( !is_user_logged_in() ) return false;
     
 if ( function_exists( 'facetwp_display') ) { ?>
 
+	<?php 
+	// if ( function_exists( 'wpes_search_form' ) ) {
+	// 	wpes_search_form( array( 
+	// 		'wpessid' => 4449 
+	// 	) ); 
+	// } 
+	?>
+
 	<?php echo facetwp_display( 'facet', 'buscar' ); ?>
 
 	<div class="row">
@@ -17,13 +25,13 @@ if ( function_exists( 'facetwp_display') ) { ?>
 
 		<!-- </div> -->
 
-		<div class="col-sm-6 col-md-4">
+		<div class="col-sm">
 
 			<?php echo facetwp_display( 'facet', 'marca' ); ?>
 
 		</div>
 
-		<div class="col-sm-6 col-md-4">
+		<div class="col-sm">
 
 			<?php echo facetwp_display( 'facet', 'producto' ); ?>
 

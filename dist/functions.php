@@ -8,11 +8,18 @@
 // Exit if accessed directly.
 defined( 'ABSPATH' ) || exit;
 
+$placeholder_id = get_theme_mod( 'placeholder_id', 19 );
+$download_form_id = get_theme_mod( 'download_form_id', 95 );
+$fichas_page_id = get_theme_mod( 'fichas_page_id', 25 );
+$orders_page_id = get_theme_mod( 'orders_page_id', 10309 );
+$categoria_catalogos_id = get_theme_mod( 'categoria_catalogos_id', 11 );
+
 // define('CONTACTO_ID', apply_filters( 'wpml_object_id', 17, 'page' ) );
-define('PLACEHOLDER_ID', 19 );
-define('ID_FORMULARIO_DESCARGA', 95 );
-define('ID_PAGINA_FICHAS', 25 );
-define('CATEGORIA_CATALOGOS', apply_filters( 'wpml_object_id', 11, 'dlm_download_category', TRUE  ) );
+define('PLACEHOLDER_ID', $placeholder_id );
+define('ID_FORMULARIO_DESCARGA', $download_form_id );
+define('ID_PAGINA_FICHAS', $fichas_page_id );
+define('ID_PAGINA_PEDIDOS', apply_filters( 'wpml_object_id', $orders_page_id, 'page', TRUE ) );
+define('CATEGORIA_CATALOGOS', apply_filters( 'wpml_object_id', $categoria_catalogos_id, 'dlm_download_category', TRUE  ) );
 
 $understrap_includes = array(
     '/theme-settings.php',                  // Initialize theme default settings.
@@ -35,6 +42,7 @@ $understrap_includes = array(
     // '/dummy-content.php',
     '/seo.php',
     '/members.php',
+    '/facetwp.php',
 );
 
 foreach ( $understrap_includes as $file ) {
@@ -648,145 +656,7 @@ function change_post_object_label() {
 add_action( 'init', 'change_post_object_label' );
 add_action( 'admin_menu', 'change_post_menu_label' );
 
-function fwp_add_facet_labels() {
-    if ( !function_exists( 'facetwp_display' ) ) return false;
-  ?>
-    <script>
-      (function($) {
-        $(document).on('facetwp-loaded', function() {
-          $('.facetwp-facet').each(function() {
-            var facet = $(this);
-            var facet_name = facet.attr('data-name');
-            var facet_type = facet.attr('data-type');
-            var facet_label = FWP.settings.labels[facet_name];
-            if (facet_type !== 'pager' && facet_type !== 'sort' && facet_type !== 'search') {
-              if (facet.closest('.facet-wrap').length < 1 && facet.closest('.facetwp-flyout').length < 1) {
-                facet.wrap('<div class="facet-wrap"></div>');
-                facet.before('<h3 class="facet-label">' + facet_label + '</h3>');
-              }
-            }
-          });
-        });
-      })(jQuery);
-    </script>
-  <?php
-}
-add_action( 'wp_head', 'fwp_add_facet_labels', 100 );
 
-add_action( 'wp_footer', function() {
-?>
-    <script>
-    (function($) {
-        $(document).on('facetwp-loaded', function() {
-
-        var searchfacet = 'buscar'; // Replace 'my_search_facet' with the name of your Search facet
-        var searchbox = $('[data-name="' + searchfacet + '"] .facetwp-search');
-
-        if(! searchbox.next('i').length) {
-            searchbox.after('<i class="clear" title="Clear Search"></i>');
-        }
-
-        if (searchbox.val() === '') {
-            searchbox.next().hide();
-        }
-
-        searchbox.on('keyup', function() {
-            if('yes' === FWP.settings[searchfacet]['auto_refresh']) {
-            $(this).addClass('loading');
-            }
-            if ($(this).val() !== '') {
-            $(this).next().show();
-            }
-        });
-        
-        searchbox.removeClass('loading');
-
-        searchbox.next().click(function() {
-            // ignore while Search facet is loading
-            if (!searchbox.prev().hasClass('f-loading')) {
-            $(this).hide();
-            searchbox.val('');
-            if (FWP.facets[searchfacet].length) {
-                FWP.autoload();
-            }
-            }
-        });
-        });
-
-    })(jQuery);
-    </script>
-<?php
-}, 100 );
-
-/**
- * Manually translate taxonomy terms
- * 
- * Change $facet_name
- * Change $tax_name
- */
-add_filter( 'facetwp_facet_display_value', function( $label, $params ) {
-    $facet_name = 'producto';
-    $tax_name = 'dlm_download_category';
-
-	if ( $facet_name == $params['facet']['name'] ) {
-		$current = ( !empty( FWP()->facet->http_params['lang'] ) ) ? FWP()->facet->http_params['lang'] :  apply_filters( 'wpml_current_language', null );  
-		$default = apply_filters('wpml_default_language', NULL );
-		if ( $current != $default ) {
-			$translated_id = apply_filters( 'wpml_object_id', $params['row']['term_id'], $tax_name, TRUE, $current );
-			$term = get_term( $translated_id );
-
-			if ( ! empty( $term ) ) {
-				$label = esc_html( $term->name );
-			}
-		}        
-	}
-	return $label;
-}, 10, 2 );
-
-// Add to your (child) theme's functions.php
-
-add_action( 'wp_head', function() {
-    ?>
-    <script>
-    document.addEventListener('facetwp-loaded', function() {
-        let $facet = fUtil('.facetwp-type-hierarchy');
-    
-        if ($facet.len()) {
-            let depthNodes = $facet.find('.facetwp-depth').nodes;
-            let lastDepthNode = depthNodes[depthNodes.length - 1];
-            $facet.find('.facetwp-link').addClass('facetwp-hidden');
-            fUtil(lastDepthNode).find('.facetwp-link').removeClass('facetwp-hidden');
-        }
-    });
-    </script>
-    <?php
-}, 100 );
-
-// Change term links to point to a specific URL
-
-add_filter( 'term_link', function( $termlink, $term, $taxonomy ) {
-    global $sitepress;
-
-    if ( isset( $sitepress ) && 'dlm_download_category' == $taxonomy ) {
-        $current_lang = apply_filters( 'wpml_current_language', null );
-        $default_lang = apply_filters( 'wpml_default_language', NULL );
-
-        if ( $current_lang == $default_lang ) {
-
-            $termlink = get_the_permalink( 'ID_PAGINA_FICHAS' ) . '?_producto=' . $term->slug;
-
-        } else {
-
-            $default_id = apply_filters( 'wpml_object_id', $term->term_id, $taxonomy, TRUE, $default_lang );
-            remove_filter( 'get_term', array( $sitepress, 'get_term_adjust_id' ),1, 1 );
-            $default_term = get_term( $default_id );
-            $default_slug = $default_term->slug;
-            $termlink = get_the_permalink( 'ID_PAGINA_FICHAS' ) . '?_producto=' . $default_slug;
-            add_filter( 'get_term', array( $sitepress, 'get_term_adjust_id' ), 1, 1 );
-        }
-    }
-    return $termlink;
-}, 10, 3);
 
 add_filter('get_terms', 'hide_catalogos_terms', 10, 4);
 function hide_catalogos_terms( $terms, $taxonomies, $args, $term_query ) {
@@ -895,10 +765,8 @@ function is_restricted_tax() {
 // Añade una pantalla de pedidos en el área de usuario
 add_filter( 'wpmem_member_links_args', 'kyrya_members_pedidos' );
 function kyrya_members_pedidos( $arr ) {
-
-    $orders_page_id = 10309;
     
-    $orders_row = '<li class="list-group-item"><a href="' . esc_url( get_permalink( $orders_page_id ) ) . '">' . get_the_title( $orders_page_id ) . '</a></li>';
+    $orders_row = '<li class="list-group-item"><a href="' . esc_url( get_permalink( ID_PAGINA_PEDIDOS ) ) . '">' . get_the_title( ID_PAGINA_PEDIDOS ) . '</a></li>';
 
     array_unshift( $arr['rows'], $orders_row );
 
@@ -936,7 +804,6 @@ function kyrya_user_is_cliente() {
     return false;
 }
 
-
 function get_user_orders( $cif = false, $agent_id = false ) {
 
     $r = '';
@@ -945,7 +812,32 @@ function get_user_orders( $cif = false, $agent_id = false ) {
 
     if ( !$user ) return __( 'Inicie sesión para ver sus pedidos', 'kyrya' );
 
-    if ( in_array( 'agente', (array) $user->roles ) ) {
+    $string_map = array(
+        'FiscalName'            => __( 'Razón social', 'kyrya'),
+        'razonSocial'            => __( 'Razón social', 'kyrya'),
+        'CompanyName'           => __( 'Empresa', 'kyrya'),
+        'empresa'           => __( 'Empresa', 'kyrya'),
+        'Customerreference'     => __( 'Referencia', 'kyrya'),
+        'CustomerReference'     => __( 'Referencia', 'kyrya'),
+        'referencia'            => __( 'Referencia', 'kyrya'),
+        'ShipmentID'            => __( 'Referencia', 'kyrya'),
+        'OrderID'               => __( 'Nº de pedido', 'kyrya'),
+        'numPedido'             => __( 'Nº de pedido', 'kyrya'),
+        'State'                 => __( 'Estado', 'kyrya'),
+        'estado'                => __( 'Estado', 'kyrya'),
+        'ShipmentDate'          => __( 'Fecha de envío', 'kyrya'),
+        'fechaConfirmacion'     => __( 'Fecha confirmación', 'kyrya'),
+        'fechaExpedicion'       => __( 'Fecha expedición', 'kyrya'),
+        'nuevaFecha'            => __( 'Nueva fecha', 'kyrya'),
+        'Comments'              => __( 'Comentarios', 'kyrya'),
+        'observacionesCliente'  => __( 'Observaciones cliente', 'kyrya'),
+        'motivo'                => __( 'Motivo', 'kyrya'),
+        'Tracking'              => __( 'Seguimiento', 'kyrya'),
+    );
+
+
+
+    if ( current_user_can( 'administrator' ) || in_array( 'agente', (array) $user->roles ) ) {
         
         $agente_id = get_user_meta( $user->ID, 'numero_agente', true );
         
@@ -953,20 +845,36 @@ function get_user_orders( $cif = false, $agent_id = false ) {
             return __( 'No se han encontrado pedidos. Compruebe su número de agente', 'kyrya' );
         }
 
-        $curlopt_url = 'https://xvlflc76dj.execute-api.us-east-1.amazonaws.com/queryOrderAgent';
+        $curlopt_urls = array(
+            array (
+                'title'         => sprintf( __( 'Pedidos enviados para el agente %s', 'kyrya' ), $agente_id ),
+                'url'          => 'https://xvlflc76dj.execute-api.us-east-1.amazonaws.com/queryOrderAgent',
+            ),
+            array (
+                'title'         => sprintf( __( 'Pedidos en proceso para el agente %s', 'kyrya' ), $agente_id ),
+                'url'          => 'https://ngw3tehd0f.execute-api.us-east-1.amazonaws.com/getOrderStatusAgent',
+            ),
+        );
         $curlopt_postfields = '{"IDUnicAgent": "'.$agente_id.'"}';
-
-        $r .= wpautop( sprintf( __( 'Pedidos para el agente %s', 'kyrya' ), $agente_id ) );
 
     } elseif( in_array( 'cliente', (array) $user->roles ) ) {
 
         $cif = get_user_meta( $user->ID, 'cif', true );
         if ( !$cif ) return __( 'Su CIF/VAT Number no está definido. Por favor revise su perfil o contacte con Kyrya', 'kyrya' );
 
-        $curlopt_url = 'https://wei0zvbew4.execute-api.us-east-1.amazonaws.com/getOrders';
-        $curlopt_postfields = '{"CIF": "'.$cif.'"}';
+        $curlopt_urls = array(
+            array (
+                'title'         => sprintf( __( 'Pedidos enviados para el cliente con CIF %s', 'kyrya' ), $cif ),
+                'url'          => 'https://wei0zvbew4.execute-api.us-east-1.amazonaws.com/getOrders',
+            ),
+            array (
+                'title'         => sprintf( __( 'Pedidos en proceso para el cliente con CIF %s', 'kyrya' ), $cif ),
+                'url'          => 'https://z820kdos02.execute-api.us-east-1.amazonaws.com/getOrderStatus',
+            ),
+            
+        );
 
-        $r .= wpautop( sprintf( __( 'Pedidos para el cliente con CIF %s', 'kyrya' ), $cif ) );
+        $curlopt_postfields = '{"CIF": "'.$cif.'"}';
 
     } else {
         
@@ -974,138 +882,130 @@ function get_user_orders( $cif = false, $agent_id = false ) {
 
     }
 
+    foreach ( $curlopt_urls as $curlopt_url ) {
 
+        $curl = curl_init();
 
-      $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => $curlopt_url['url'],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => '',
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => 'GET',
+            CURLOPT_POSTFIELDS => $curlopt_postfields,
+            CURLOPT_HTTPHEADER => array(
+                'Content-Type: text/plain'
+            ),
+        ));
+        
+        $response_json = curl_exec($curl);
+        $response = json_decode( $response_json );
+        
+        curl_close($curl);
 
-      curl_setopt_array($curl, array(
-        CURLOPT_URL => $curlopt_url,
-        CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_ENCODING => '',
-        CURLOPT_MAXREDIRS => 10,
-        CURLOPT_TIMEOUT => 0,
-        CURLOPT_FOLLOWLOCATION => true,
-        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-        CURLOPT_CUSTOMREQUEST => 'GET',
-        CURLOPT_POSTFIELDS => $curlopt_postfields,
-        CURLOPT_HTTPHEADER => array(
-          'Content-Type: text/plain'
-        ),
-      ));
-      
-      $response_json = curl_exec($curl);
-      $response = json_decode( $response_json );
-      
-      curl_close($curl);
-      
-    //  if ( current_user_can( 'manage_options' ) ) :
-        // echo '<pre>';
-        //     print_r ( $response );
-        // echo '</pre>';
-    //  endif;
+        if ( isset($response->errorType) ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' ) . ' - ' . $response['errorType'];
 
-    if ( isset($response->errorType) ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' ) . ' - ' . $response['errorType'];
+        if ( !isset($response->ok) || !$response->ok ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' );
 
-    if ( !isset($response->ok) || !$response->ok ) return __( 'Ha ocurrido un error. Inténtelo de nuevo más tarde.', 'kyrya' );
-
-    if ( is_array( $response ) || is_object( $response ) ) {
-
-            $string_map = array(
-                'FiscalName'         => __( 'Razón social', 'kyrya'),
-                'CompanyName'        => __( 'Empresa', 'kyrya'),
-                'Customerreference'  => __( 'Referencia', 'kyrya'),
-                'CustomerReference'  => __( 'Referencia', 'kyrya'),
-                'ShipmentID'         => __( 'Referencia', 'kyrya'),
-                'OrderID'            => __( 'Nº de pedido', 'kyrya'),
-                'State'              => __( 'Estado', 'kyrya'),
-                'ShipmentDate'       => __( 'Fecha de envío', 'kyrya'),
-                'Comments'           => __( 'Comentarios', 'kyrya'),
-                'Tracking'           => __( 'Seguimiento', 'kyrya'),
-            );
+        if ( is_array( $response ) || is_object( $response ) ) {
 
             $pedidos = $response->data->result;
 
             if ( 204 == $response->code ) return __( 'Su CIF/VAT Number no se encuentra en nuestra base de datos. Por favor revise su perfil o contacte con Kyrya', 'kyrya' );
-            if ( empty($pedidos) ) return __( 'No tiene pedidos asignados', 'kyrya' );
 
-            $r .= '<div class="table-responsive">';
+            $r .= '<div class="wrapper">';
+                
+                $r .= '<h3>'. $curlopt_url['title'].'</h3>';
 
-                $r .= '<table class="table table-striped">';
+                if ( empty($pedidos) ) $r .= __( 'No tiene pedidos asignados', 'kyrya' );
 
-                $r .= '<thead>';
+                $r .= '<div class="table-responsive">';
 
-                    $r .= '<tr>';
+                    $r .= '<table class="table table-striped table-hover table-pedidos">';
 
-                        $obj_vars = get_object_vars( $pedidos[0] );
-                        $props = array_keys( $obj_vars );
-        
-                        foreach ( $props as $prop_name ) {
+                        $r .= '<thead>';
 
-                            $title = $prop_name;
-                            if ( isset( $string_map[$prop_name] ) ) $title = $string_map[$prop_name];
+                            $r .= '<tr>';
 
-                            $r .= '<th class="'. sanitize_title( $prop_name ) .'">'. $title.'</th>';
+                                $obj_vars = get_object_vars( $pedidos[0] );
+                                $props = array_keys( $obj_vars );
+                
+                                foreach ( $props as $prop_name ) {
 
-                        }
+                                    $title = $prop_name;
+                                    if ( isset( $string_map[$prop_name] ) ) $title = $string_map[$prop_name];
 
-                    $r .= '</tr>';
+                                    $r .= '<th class="'. sanitize_title( $prop_name ) .'">'. $title.'</th>';
 
-                $r .= '</thead>';
-
-                $r .= '<tbody>';
-
-                    foreach ( $pedidos as $key => $obj ) {
-
-                        $r .= '<tr>';
-
-                            foreach ( $props as $prop_name ) {
-
-                                $value = $obj->$prop_name;
-
-                                switch ($prop_name) {
-                                    case 'Tracking':
-                                        
-                                        if( filter_var($value, FILTER_VALIDATE_URL) ) {
-                                            $value = '<a class="btn btn-sm btn-outline-primary" href="'.$value.'" target="__blank">'. __( 'Ver seguimiento', 'kyrya' ) .'</a>';
-                                        }
-                                        
-                                        break;
-
-                                    case 'ShipmentDate':
-                                    
-                                        if( $value ) {
-                                            $value = date('Y-m-d', strtotime( $value) );
-                                        }
-
-                                        break;
-                                    
-                                    case 'ShipmentID':
-                                
-                                        if( 'undefined' == $value ) {
-                                            $value = '';
-                                        }
-
-                                        break;
-                                        
-
-                                    default:
-                                        $value = $obj->$prop_name;
-                                        break;
                                 }
 
-                                $r .= '<td class="'. sanitize_title( $prop_name ) .'">'. $value .'</td>';
+                            $r .= '</tr>';
+
+                        $r .= '</thead>';
+
+                        $r .= '<tbody>';
+
+                            foreach ( $pedidos as $key => $obj ) {
+
+                                $r .= '<tr>';
+
+                                    foreach ( $props as $prop_name ) {
+
+                                        $value = $obj->$prop_name;
+
+                                        switch ($prop_name) {
+                                            case 'Tracking':
+                                                
+                                                if( filter_var($value, FILTER_VALIDATE_URL) ) {
+                                                    $value = '<a class="btn btn-sm btn-info" href="'.$value.'" target="__blank">'. __( 'Seguimiento', 'kyrya' ) .'</a>';
+                                                }
+                                                
+                                                break;
+
+                                            case 'ShipmentDate':
+                                            
+                                                if( $value ) {
+                                                    $value = date('Y-m-d', strtotime( $value) );
+                                                }
+
+                                                break;
+                                            
+                                            case 'ShipmentID':
+                                        
+                                                if( 'undefined' == $value ) {
+                                                    $value = '';
+                                                }
+
+                                                break;
+                                                
+
+                                            default:
+                                                $value = $obj->$prop_name;
+                                                break;
+                                        }
+
+                                        $r .= '<td class="'. sanitize_title( $string_map[$prop_name] ) .'">'. $value .'</td>';
+
+                                    }
+
+                                $r .= '</tr>';
 
                             }
 
-                        $r .= '</tr>';
+                        $r .= '</tbody>';
 
-                    }
+                    $r .= '</table>';
 
-                $r .= '</table>';
+                $r .= '</div>'; // table-responsive
 
-            $r .= '</div>';
+            $r .= '</div>'; // wrapper
 
         }
+
+    } // foreach $curl
 
     return $r;
 
@@ -1114,3 +1014,31 @@ function get_user_orders( $cif = false, $agent_id = false ) {
 function user_orders( $cif = false ) {
     echo get_user_orders( $cif );
 }
+
+add_action( 'save_post', 'kyrya_save_search_term_post_meta' );
+function kyrya_save_search_term_post_meta( $post_id ) {
+
+	if ( wp_is_post_revision( $post_id ) ) {
+		return;
+        }
+
+	$terms = wp_get_post_terms( $post_id, 'dlm_download_category' );
+    $terms_array = array();
+
+    foreach( $terms as $term ) {
+
+        $active_languages = apply_filters( 'wpml_active_languages', NULL, 'orderby=id&order=desc' );
+
+        foreach ( $active_languages as $lang_code => $lang ) {
+
+            $translated_id = apply_filters( 'wpml_object_id', $term->term_id, 'dlm_download_category', FALSE, $lang_code );
+            $terms_array[] = get_term( $translated_id )->name;
+
+        }
+
+    }
+
+    update_post_meta( $post_id, 'search_terms', implode(' ', $terms_array ) );
+    
+}
+
