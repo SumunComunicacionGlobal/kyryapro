@@ -837,7 +837,7 @@ function get_user_orders( $cif = false, $agent_id = false ) {
 
 
 
-    if ( current_user_can( 'administrator' ) || in_array( 'agente', (array) $user->roles ) ) {
+    if ( in_array( 'agente', (array) $user->roles ) ) {
         
         $agente_id = get_user_meta( $user->ID, 'numero_agente', true );
         

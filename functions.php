@@ -835,52 +835,77 @@ function get_user_orders( $cif = false, $agent_id = false ) {
         'Tracking'              => __( 'Seguimiento', 'kyrya'),
     );
 
+    $user_roles = $user->roles;
+    if ( current_user_can( 'manage_options' ) ) {
+        $user_roles[] = 'agente';
+        $user_roles[] = 'cliente';
+    }
+
+    if (
+        !in_array( 'agente', $user_roles ) &&
+        !in_array( 'cliente', $user_roles)
+    ) {
+        return __( 'No tiene permisos para ver esta página.', 'kyrya' );
+    }
 
 
-    if ( in_array( 'agente', (array) $user->roles ) ) {
+    $curlopt_urls = array();
+    $curlopt_postfields = array();
+
+    if ( in_array( 'agente', (array) $user_roles ) ) {
         
         $agente_id = get_user_meta( $user->ID, 'numero_agente', true );
         
-        if ( !$agente_id ) {
-            return __( 'No se han encontrado pedidos. Compruebe su número de agente', 'kyrya' );
-        }
+        if ( $agente_id ) {
 
-        $curlopt_urls = array(
-            array (
-                'title'         => sprintf( __( 'Pedidos enviados para el agente %s', 'kyrya' ), $agente_id ),
-                'url'          => 'https://xvlflc76dj.execute-api.us-east-1.amazonaws.com/queryOrderAgent',
-            ),
-            array (
+            $curlopt_urls[] = array (
                 'title'         => sprintf( __( 'Pedidos en proceso para el agente %s', 'kyrya' ), $agente_id ),
                 'url'          => 'https://ngw3tehd0f.execute-api.us-east-1.amazonaws.com/getOrderStatusAgent',
-            ),
-        );
-        $curlopt_postfields = '{"IDUnicAgent": "'.$agente_id.'"}';
+                );
 
-    } elseif( in_array( 'cliente', (array) $user->roles ) ) {
+            $curlopt_urls[] = array (
+                                'title'         => sprintf( __( 'Pedidos enviados para el agente %s', 'kyrya' ), $agente_id ),
+                                'url'          => 'https://xvlflc76dj.execute-api.us-east-1.amazonaws.com/queryOrderAgent',
+                            );
+
+            $curlopt_postfields[] = '"IDUnicAgent": "'.$agente_id.'"';
+
+        } else {
+            
+            $r .= __( 'No se han encontrado pedidos. Compruebe su número de agente', 'kyrya' );
+
+        }
+
+
+    } 
+    
+    if( in_array( 'cliente', (array) $user_roles ) ) {
 
         $cif = get_user_meta( $user->ID, 'cif', true );
-        if ( !$cif ) return __( 'Su CIF/VAT Number no está definido. Por favor revise su perfil o contacte con Kyrya', 'kyrya' );
 
-        $curlopt_urls = array(
-            array (
-                'title'         => sprintf( __( 'Pedidos enviados para el cliente con CIF %s', 'kyrya' ), $cif ),
-                'url'          => 'https://wei0zvbew4.execute-api.us-east-1.amazonaws.com/getOrders',
-            ),
-            array (
-                'title'         => sprintf( __( 'Pedidos en proceso para el cliente con CIF %s', 'kyrya' ), $cif ),
-                'url'          => 'https://z820kdos02.execute-api.us-east-1.amazonaws.com/getOrderStatus',
-            ),
-            
-        );
+        if ( $cif ) {
 
-        $curlopt_postfields = '{"CIF": "'.$cif.'"}';
+            $curlopt_urls[] = array (
+                                    'title'         => sprintf( __( 'Pedidos en proceso para el cliente con CIF %s', 'kyrya' ), $cif ),
+                                    'url'          => 'https://z820kdos02.execute-api.us-east-1.amazonaws.com/getOrderStatus',
+                                );
+            $curlopt_urls[] = array (
+                                    'title'         => sprintf( __( 'Pedidos enviados para el cliente con CIF %s', 'kyrya' ), $cif ),
+                                    'url'          => 'https://wei0zvbew4.execute-api.us-east-1.amazonaws.com/getOrders',
+                                );
+                    
+            $curlopt_postfields[] = '"CIF": "'.$cif.'"';
+    
+        } else {
+    
+            $r .= __( 'Su CIF/VAT Number no está definido. Por favor revise su perfil o contacte con Kyrya', 'kyrya' );
 
-    } else {
-        
-        return __( 'No tiene permisos para ver esta página.', 'kyrya' );
+        }
+
 
     }
+
+    if ( $curlopt_postfields ) $curlopt_postfields = '{' . implode( ',', $curlopt_postfields ) . '}';
 
     foreach ( $curlopt_urls as $curlopt_url ) {
 

@@ -235,17 +235,25 @@ label.ebd_input {
 		min-width: 120px;
 	}
 
-	&.table-pedidos td {
-		vertical-align: middle;
+	&.table-pedidos {
 
-		&.razon-social {
+		th {
 			font-size: $font-size-sm;
-			font-weight: $font-weight-bold;
 		}
+		
+		td {
+			vertical-align: middle;
 
-		&.empresa {
-			font-size: $font-size-sm;
-			color: $text-muted;
+			&.razon-social {
+				font-size: $font-size-sm;
+				font-weight: $font-weight-bold;
+			}
+
+			&.empresa {
+				font-size: $font-size-sm;
+				color: $text-muted;
+			}
+
 		}
 	}
 }
